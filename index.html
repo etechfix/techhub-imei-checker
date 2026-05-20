@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TechHub IMEI Checker</title>
+</head>
+<body>
+  <h1>Free IMEI Model Checker Australia</h1>
+
+  <input id="imeiInput" placeholder="Enter IMEI number" />
+  <button onclick="checkIMEI()">Check IMEI</button>
+
+  <pre id="result"></pre>
+
+  <script>
+    async function checkIMEI() {
+      const input = document.getElementById('imeiInput').value.replace(/\D/g, '');
+      const result = document.getElementById('result');
+
+      if (input.length < 8) {
+        result.textContent = 'Please enter a valid IMEI.';
+        return;
+      }
+
+      const tac = input.substring(0, 8);
+      result.textContent = 'Checking TAC: ' + tac;
+
+      const response = await fetch('tacdb.csv');
+      const text = await response.text();
+      const lines = text.split('\n');
+
+      let found = null;
+
+      for (const line of lines) {
+        const cols = line.split(',');
+
+        if (cols[0] === tac) {
+          found = cols;
+          break;
+        }
+      }
+
+      if (found) {
+        result.textContent =
+          'IMEI: ' + input + '\n' +
+          'TAC: ' + tac + '\n' +
+          'Brand / Model: ' + found[1] + '\n' +
+          'Details: ' + (found[2] || '');
+      } else {
+        result.textContent =
+          'IMEI: ' + input + '\n' +
+          'TAC: ' + tac + '\n' +
+          'Model not found in database.';
+      }
+    }
+  </script>
+</body>
+</html>
